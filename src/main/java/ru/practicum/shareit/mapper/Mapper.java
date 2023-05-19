@@ -1,4 +1,4 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.mapper;
 
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -10,7 +10,9 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 public class Mapper {
-    private Mapper(){}
+    private Mapper() {
+
+    }
 
     public static UserDto toDto(User user) {
         return UserDto.builder()
@@ -22,10 +24,19 @@ public class Mapper {
 
     public static User fromDto(UserDto userDto) {
         return User.builder()
-                .id(userDto.getId())
                 .name(userDto.getName())
                 .email(userDto.getEmail())
                 .build();
+    }
+
+    public static User fromDto(UserDto dto, User user) {
+        if (dto.getEmail() != null) {
+            user.setEmail(dto.getEmail());
+        }
+        if (dto.getName() != null) {
+            user.setName(dto.getName());
+        }
+        return user;
     }
 
     public static ItemDto toDto(Item item) {
@@ -33,21 +44,29 @@ public class Mapper {
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
-                .owner(item.getOwner())
                 .isAvailable(item.isAvailable())
-                .request(item.getRequest() != null ? item.getRequest() : null)
                 .build();
     }
 
     public static Item fromDto(ItemDto itemDto) {
         return Item.builder()
-                .id(itemDto.getId())
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
-                .owner(itemDto.getOwner())
-                .isAvailable(itemDto.isAvailable())
-                .request(itemDto.getRequest() != null ? itemDto.getRequest() : null)
+                .isAvailable(itemDto.getIsAvailable())
                 .build();
+    }
+
+    public static Item fromDto(ItemDto dto, Item item) {
+        if (dto.getName() != null) {
+            item.setName(dto.getName());
+        }
+        if (dto.getDescription() != null) {
+            item.setDescription(dto.getDescription());
+        }
+        if (dto.getIsAvailable() != null) {
+            item.setAvailable(dto.getIsAvailable());
+        }
+        return item;
     }
 
     public static BookingDto toDto(Booking booking) {
