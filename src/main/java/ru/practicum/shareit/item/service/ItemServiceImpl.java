@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dao.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
@@ -36,7 +35,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = getItemOrThrow(itemId);
 
         if (!item.getOwner().equals(user)) {
-            throw new ValidationException("User is not owns this item!");
+            throw new NotFoundException("Can't find relation between User and Item!");
         }
 
         Mapper.fromDto(dto, item);
@@ -62,12 +61,12 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> searchAvailableItems(int userId, String text) {
         getItemOrThrow(userId);
-        List<Item> items = itemRepo.getByTextParams(text);
-        items.removeIf(item -> !item.isAvailable());
-
-        if (items.isEmpty()) {
+        if (text.isBlank()) {
             return Collections.emptyList();
         }
+
+        List<Item> items = itemRepo.getByTextParams(text.toLowerCase());
+        items.removeIf(item -> !item.isAvailable());
         return items.stream()
                 .map(Mapper::toDto)
                 .collect(Collectors.toList());

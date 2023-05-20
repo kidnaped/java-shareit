@@ -19,5 +19,5 @@ public class ItemDto {
     @NotBlank
     private String description;
     @NotNull
-    private Boolean isAvailable;
+    private Boolean available;
 }

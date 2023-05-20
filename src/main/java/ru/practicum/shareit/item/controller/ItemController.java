@@ -41,6 +41,6 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDto> searchForItems(@RequestHeader(value = "X-Sharer-User-Id") int userId,
                                         @RequestParam String text) {
-        return service.searchAvailableItems(userId, text.toLowerCase());
+        return service.searchAvailableItems(userId, text);
     }
 }

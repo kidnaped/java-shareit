@@ -44,7 +44,7 @@ public class Mapper {
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
-                .isAvailable(item.isAvailable())
+                .available(item.isAvailable())
                 .build();
     }
 
@@ -52,7 +52,7 @@ public class Mapper {
         return Item.builder()
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
-                .isAvailable(itemDto.getIsAvailable())
+                .isAvailable(itemDto.getAvailable())
                 .build();
     }
 
@@ -63,8 +63,8 @@ public class Mapper {
         if (dto.getDescription() != null) {
             item.setDescription(dto.getDescription());
         }
-        if (dto.getIsAvailable() != null) {
-            item.setAvailable(dto.getIsAvailable());
+        if (dto.getAvailable() != null) {
+            item.setAvailable(dto.getAvailable());
         }
         return item;
     }

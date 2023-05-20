@@ -41,7 +41,11 @@ public class ItemRepositoryInMemoryImpl implements ItemRepository {
     @Override
     public List<Item> getByTextParams(String text) {
         return items.values().stream()
-                .filter(item -> item.getName().contains(text) || item.getDescription().contains(text))
+                .filter(item -> item.getName()
+                        .toLowerCase()
+                        .contains(text) || item.getDescription()
+                        .toLowerCase()
+                        .contains(text))
                 .collect(Collectors.toList());
     }
 
