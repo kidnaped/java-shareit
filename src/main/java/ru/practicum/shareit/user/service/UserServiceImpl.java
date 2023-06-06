@@ -1,33 +1,35 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.RegistrationException;
-import ru.practicum.shareit.mapper.Mapper;
-import ru.practicum.shareit.user.dao.UserRepository;
+import ru.practicum.shareit.user.UserMapper;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
 
     @Override
     public List<UserDto> getAllUsers() {
-        return repository.getAllUsers().stream()
-                .map(Mapper::toDto)
-                .collect(Collectors.toList());
+        List<User> users = repository.findAll();
+        log.info("Found all users.");
+        return UserMapper.toDto(users);
     }
 
     @Override
-    public UserDto getById(int userId) {
-        return Mapper.toDto(getUserOrThrow(userId));
+    public UserDto getById(long userId) {
+        User user = getUserById(userId);
+        log.info("User {} found.", user.getName());
+        return UserMapper.toDto(user);
     }
 
     @Override
@@ -35,48 +37,31 @@ public class UserServiceImpl implements UserService {
         if (userDto.getEmail() == null || userDto.getName() == null) {
             throw new ValidationException("Some required fields are missing!");
         }
-        emailValidation(userDto.getEmail());
-        User user = Mapper.fromDto(userDto);
-        user = repository.saveUser(user);
-        return Mapper.toDto(user);
+        User user = UserMapper.fromDto(userDto);
+        user = repository.save(user);
+        log.info("User {}, {} registered.", user.getId(), user.getName());
+        return UserMapper.toDto(user);
     }
 
     @Override
-    public UserDto updateUser(int userId, UserDto userDto) {
-        User user = getUserOrThrow(userId);
-        User userToCheck;
-
-        if (userDto.getEmail() != null) {
-            userToCheck = repository.getByEmail(userDto.getEmail());
-
-            if (userToCheck != null && !userToCheck.equals(user)) {
-                throw new RegistrationException("This email is already registered by another user!");
-            }
-        }
-
-        Mapper.fromDto(userDto, user);
-        user = repository.updateUser(user);
-        return Mapper.toDto(user);
+    public UserDto updateUser(long userId, UserDto userDto) {
+        User user = getUserById(userId);
+        UserMapper.fromDto(userDto, user);
+        user = repository.save(user);
+        log.info("User {}, {} updated.", user.getId(), user.getName());
+        return UserMapper.toDto(user);
     }
 
     @Override
-    public void deleteUser(int userId) {
-        User user = getUserOrThrow(userId);
-        repository.deleteUser(user.getId());
+    public void deleteUser(long userId) {
+        User user = getUserById(userId);
+        repository.deleteById(user.getId());
+        log.info("User {} deleted.", user.getName());
     }
 
-    private void emailValidation(String email) {
-        User user = repository.getByEmail(email);
-        if (user != null) {
-            throw new RegistrationException("User with this email is already exists!");
-        }
-    }
-
-    private User getUserOrThrow(int id) {
-        User user = repository.getById(id);
-        if (user == null) {
-            throw new NotFoundException("User with tis ID is not found!");
-        }
-        return user;
+    @Override
+    public User getUserById(long userId) {
+        return repository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User with provided ID is not found!"));
     }
 }

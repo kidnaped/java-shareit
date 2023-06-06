@@ -7,20 +7,31 @@ import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Table(name = "bookings")
 public class Booking {
-    private int id;
-    private LocalDate start;
-    private LocalDate end;
-    @NotNull
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "booking_id")
+    private long id;
+    @Column(name = "booking_start")
+    private LocalDateTime start;
+    @Column(name = "booking_end")
+    private LocalDateTime end;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id")
     private Item item;
-    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booker_id")
     private User booker;
+    @Column(name = "booking_status")
+    @Enumerated(EnumType.STRING)
     private Status status;
 }
