@@ -1,14 +1,13 @@
 package ru.practicum.shareit.request.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import java.util.Objects;
 
-@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,4 +22,25 @@ public class ItemRequest {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requester_id")
     private User requester;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ItemRequest)) return false;
+        ItemRequest that = (ItemRequest) o;
+        return getId() == that.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
+
+    @Override
+    public String toString() {
+        return "ItemRequest{" +
+                "id=" + id +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

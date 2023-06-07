@@ -22,6 +22,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,7 +68,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto getById(long userId, long itemId) {
         User user = userService.getUserById(userId);
         Item item = getItemById(itemId);
-        ItemDto dto = makeDtoWithBookingsAndComments(user, item);
+        ItemDto dto = makeDtoWithAllData(user, item);
         log.info("Item with ID {} found.", itemId);
         return dto;
     }
@@ -75,24 +76,33 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getUsersItems(long userId) {
         User user = userService.getUserById(userId);
-        return itemRepo.getAllByOwnerOrderByIdAsc(user)
-                .stream()
-                .map(item -> makeDtoWithBookingsAndComments(user, item))
+        List<Booking> bookings = new ArrayList<>(bookingRepo.findAllByOwnerId(userId));
+        List<Item> items = itemRepo.getAllByOwnerOrderByIdAsc(user);
+        List<Long> itemIds = items.stream().map(Item::getId).collect(Collectors.toList());
+        List<Comment> comments = new ArrayList<>(commentRepo.findAllByItemIdIn(itemIds));
+
+        return items.stream()
+                .map(item -> makeDtoWithAllData(user, item, bookings, comments))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<ItemDto> searchAvailableItems(long userId, String text) {
         User user = userService.getUserById(userId);
+
         if (text.isBlank()) {
             return Collections.emptyList();
         }
 
         List<Item> items = itemRepo.search(text);
         items.removeIf(item -> !item.isAvailable());
+        List<Long> itemIds = items.stream().map(Item::getId).collect(Collectors.toList());
+        List<Comment> comments = new ArrayList<>(commentRepo.findAllByItemIdIn(itemIds));
+        List<Booking> bookings = new ArrayList<>(bookingRepo.findAllByOwnerId(userId));
+
         log.info("Found {} corresponding items.", items.size());
         return items.stream()
-                .map(item -> makeDtoWithBookingsAndComments(user, item))
+                .map(item -> makeDtoWithAllData(user, item, bookings, comments))
                 .collect(Collectors.toList());
     }
 
@@ -117,7 +127,7 @@ public class ItemServiceImpl implements ItemService {
         return CommentMapper.toDto(comment);
     }
 
-    private ItemDto makeDtoWithBookingsAndComments(User user, Item item) {
+    private ItemDto makeDtoWithAllData(User user, Item item) {
         ItemDto dto = ItemMapper.toDto(item);
 
         if (isUserOwnerOfItem(user, item)) {
@@ -133,6 +143,37 @@ public class ItemServiceImpl implements ItemService {
         }
 
         dto.setComments(CommentMapper.toDto(commentRepo.findAllByItemId(item.getId())));
+
+        return dto;
+    }
+
+    private ItemDto makeDtoWithAllData(User user, Item item, List<Booking> bookings, List<Comment> comments) {
+        ItemDto dto = ItemMapper.toDto(item);
+        if (isUserOwnerOfItem(user, item)) {
+            Booking next = null;
+            Booking last = null;
+
+            for (Booking booking : bookings) {
+                if (booking.getItem().equals(item) && booking.getStatus().equals(Status.APPROVED)) {
+                    if (booking.getStart().isAfter(LocalDateTime.now())) {
+                        if (next == null || booking.getStart().isBefore(next.getStart())) {
+                            next = booking;
+                        }
+                    } else if (last == null || booking.getEnd().isAfter(last.getEnd())) {
+                        last = booking;
+                    }
+                }
+            }
+
+            dto.setNextBooking(next != null ? BookingMapper.toShortDto(next) : null);
+            dto.setLastBooking(last != null ? BookingMapper.toShortDto(last) : null);
+        }
+
+        List<CommentDto> commentDtos = comments.stream()
+                .filter(comment -> comment.getItem().equals(item))
+                .map(CommentMapper::toDto)
+                .collect(Collectors.toList());
+        dto.setComments(commentDtos);
 
         return dto;
     }
