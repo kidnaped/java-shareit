@@ -4,6 +4,7 @@ import lombok.*;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
@@ -16,12 +17,15 @@ import java.util.Objects;
 public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "request_id")
     private long id;
     @Column(name = "request_description")
     private String description;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requester_id")
     private User requester;
+    @Column(name = "created")
+    private LocalDateTime creationDate;
 
     @Override
     public boolean equals(Object o) {

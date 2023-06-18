@@ -2,6 +2,9 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -18,6 +21,7 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.ItemMapper;
+import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -35,6 +39,7 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepo;
     private final CommentRepository commentRepo;
     private final UserService userService;
+    private final ItemRequestService requestService;
 
     @Override
     @Transactional
@@ -42,6 +47,11 @@ public class ItemServiceImpl implements ItemService {
         User user = userService.getUserById(userId);
         Item item = ItemMapper.fromDto(itemDto);
         item.setOwner(user);
+
+        if (itemDto.getRequestId() != null) {
+            item.setRequest(requestService.getRequestById(itemDto.getRequestId()));
+        }
+
         log.info("Item {} with ID {} created.", item.getName(), item.getId());
         return ItemMapper.toDto(itemRepo.save(item));
     }
@@ -53,7 +63,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = getItemById(itemId);
 
         if (!isUserOwnerOfItem(user, item)) {
-            throw new NotFoundException("Can't find relation between User and Item!");
+            throw new NotFoundException("User is not the owner of the item.");
         }
 
         ItemMapper.fromDto(dto, item);
@@ -74,10 +84,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getUsersItems(long userId) {
+    public List<ItemDto> getUsersItems(long userId, int from, int size) {
         User user = userService.getUserById(userId);
-        List<Booking> bookings = new ArrayList<>(bookingRepo.findAllByOwnerId(userId));
-        List<Item> items = itemRepo.getAllByOwnerOrderByIdAsc(user);
+        Pageable pageable = getPage(from, size);
+        List<Booking> bookings = new ArrayList<>(bookingRepo.findAllByOwnerId(user.getId(), pageable));
+        List<Item> items = itemRepo.findAllByOwnerOrderByIdAsc(user, pageable);
         List<Long> itemIds = items.stream().map(Item::getId).collect(Collectors.toList());
         List<Comment> comments = new ArrayList<>(commentRepo.findAllByItemIdIn(itemIds));
 
@@ -87,18 +98,19 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchAvailableItems(long userId, String text) {
+    public List<ItemDto> searchAvailableItems(long userId, String text, int from, int size) {
         User user = userService.getUserById(userId);
+        Pageable pageable = getPage(from, size);
 
         if (text.isBlank()) {
             return Collections.emptyList();
         }
 
-        List<Item> items = itemRepo.search(text);
+        List<Item> items = itemRepo.search(text, pageable);
         items.removeIf(item -> !item.isAvailable());
         List<Long> itemIds = items.stream().map(Item::getId).collect(Collectors.toList());
         List<Comment> comments = new ArrayList<>(commentRepo.findAllByItemIdIn(itemIds));
-        List<Booking> bookings = new ArrayList<>(bookingRepo.findAllByOwnerId(userId));
+        List<Booking> bookings = new ArrayList<>(bookingRepo.findAllByOwnerId(userId, pageable));
 
         log.info("Found {} corresponding items.", items.size());
         return items.stream()
@@ -186,5 +198,12 @@ public class ItemServiceImpl implements ItemService {
 
     private boolean isUserOwnerOfItem(User user, Item item) {
         return item.getOwner().equals(user);
+    }
+
+    private PageRequest getPage(Integer from, Integer size) {
+        if (size <= 0 || from < 0) {
+            throw new IllegalArgumentException("Page size must not be less than one.");
+        }
+        return PageRequest.of(from / size, size, Sort.by("item_id").ascending());
     }
 }
