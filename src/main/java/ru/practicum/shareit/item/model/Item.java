@@ -13,22 +13,19 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "items", schema = "public")
+@Table(name = "items")
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "item_id")
     private long id;
-    @Column(name = "item_name")
     private String name;
-    @Column(name = "item_description")
     private String description;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_owner")
+    @JoinColumn(name = "owner")
     private User owner;
     private boolean available;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_request_id")
+    @JoinColumn(name = "request_id")
     private ItemRequest request;
 
     @Override

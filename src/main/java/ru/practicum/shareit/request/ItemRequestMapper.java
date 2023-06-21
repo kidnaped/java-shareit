@@ -9,6 +9,7 @@ import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ItemRequestMapper {
@@ -17,7 +18,7 @@ public class ItemRequestMapper {
                 .id(request.getId())
                 .description(request.getDescription())
                 .requester(UserMapper.toShortDto(request.getRequester()))
-                .creationDate(request.getCreationDate())
+                .created(request.getCreated().truncatedTo(ChronoUnit.SECONDS))
                 .build();
     }
 
@@ -25,7 +26,7 @@ public class ItemRequestMapper {
         ItemRequest request = new ItemRequest();
         request.setRequester(user);
         request.setDescription(dto.getDescription());
-        request.setCreationDate(LocalDateTime.now());
+        request.setCreated(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         return request;
     }
 }

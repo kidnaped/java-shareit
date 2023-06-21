@@ -18,11 +18,10 @@ import java.util.Objects;
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "booking_id")
     private long id;
-    @Column(name = "booking_start")
+    @Column(name = "start_time")
     private LocalDateTime start;
-    @Column(name = "booking_end")
+    @Column(name = "end_time")
     private LocalDateTime end;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
@@ -30,7 +29,7 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "booker_id")
     private User booker;
-    @Column(name = "booking_status")
+    @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private Status status;
 

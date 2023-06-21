@@ -51,9 +51,10 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getRequestId() != null) {
             item.setRequest(requestService.getRequestById(itemDto.getRequestId()));
         }
+        item = itemRepo.save(item);
 
         log.info("Item {} with ID {} created.", item.getName(), item.getId());
-        return ItemMapper.toDto(itemRepo.save(item));
+        return makeDtoWithAllData(user, item);
     }
 
     @Override
@@ -68,7 +69,7 @@ public class ItemServiceImpl implements ItemService {
 
         ItemMapper.fromDto(dto, item);
         item = itemRepo.save(item);
-        ItemDto resultDto = ItemMapper.toDto(item);
+        ItemDto resultDto = makeDtoWithAllData(user, item);
 
         log.info("Item {} with ID {} updated.", item.getName(), itemId);
         return resultDto;
@@ -87,8 +88,8 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> getUsersItems(long userId, int from, int size) {
         User user = userService.getUserById(userId);
         Pageable pageable = getPage(from, size);
-        List<Booking> bookings = new ArrayList<>(bookingRepo.findAllByOwnerId(user.getId(), pageable));
-        List<Item> items = itemRepo.findAllByOwnerOrderByIdAsc(user, pageable);
+        List<Booking> bookings = new ArrayList<>(bookingRepo.findAllByOwnerId(userId, pageable));
+        List<Item> items = itemRepo.findAllByOwnerId(userId, pageable);
         List<Long> itemIds = items.stream().map(Item::getId).collect(Collectors.toList());
         List<Comment> comments = new ArrayList<>(commentRepo.findAllByItemIdIn(itemIds));
 
@@ -106,8 +107,9 @@ public class ItemServiceImpl implements ItemService {
             return Collections.emptyList();
         }
 
-        List<Item> items = itemRepo.search(text, pageable);
-        items.removeIf(item -> !item.isAvailable());
+        List<Item> items = itemRepo.search(text, pageable).stream()
+                .filter(Item::isAvailable)
+                .collect(Collectors.toList());
         List<Long> itemIds = items.stream().map(Item::getId).collect(Collectors.toList());
         List<Comment> comments = new ArrayList<>(commentRepo.findAllByItemIdIn(itemIds));
         List<Booking> bookings = new ArrayList<>(bookingRepo.findAllByOwnerId(userId, pageable));
@@ -204,6 +206,6 @@ public class ItemServiceImpl implements ItemService {
         if (size <= 0 || from < 0) {
             throw new IllegalArgumentException("Page size must not be less than one.");
         }
-        return PageRequest.of(from / size, size, Sort.by("item_id").ascending());
+        return PageRequest.of(from / size, size, Sort.by("id").ascending());
     }
 }

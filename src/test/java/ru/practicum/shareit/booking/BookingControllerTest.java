@@ -56,7 +56,7 @@ class BookingControllerTest {
         dto1 = BookingDto.builder()
                 .start(creationDto.getStart())
                 .end(creationDto.getEnd())
-                .item(new ItemShortDto(1L, "itemname1"))
+                .item(new ItemShortDto(1L, "itemname1", "description1", true, 2L))
                 .booker(new UserShortDto(2L, "username1"))
                 .status(Status.APPROVED)
                 .build();
@@ -64,8 +64,8 @@ class BookingControllerTest {
         dto2 = BookingDto.builder()
                 .start(creationDto2.getStart())
                 .end(creationDto2.getEnd())
-                .item(new ItemShortDto(1L, "itemname1"))
-                .booker(new UserShortDto(2L, "username1"))
+                .item(new ItemShortDto(1L, "itemname2", "description2", true, 3L))
+                .booker(new UserShortDto(2L, "username2"))
                 .status(Status.APPROVED)
                 .build();
     }
@@ -81,14 +81,17 @@ class BookingControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(dto1.getId()))
-                .andExpect(jsonPath("$.start")
-                        .value(dto1.getStart().truncatedTo(ChronoUnit.SECONDS).toString()))
+                .andExpect(jsonPath("$.start").value(dto1.getStart()
+                        .truncatedTo(ChronoUnit.SECONDS).toString()))
                 .andExpect(jsonPath("$.end").value(dto1.getEnd()
                         .truncatedTo(ChronoUnit.SECONDS).toString()))
                 .andExpect(jsonPath("$.status").value(dto1.getStatus().toString()))
 
                 .andExpect(jsonPath("$.item.id").value(dto1.getItem().getId()))
                 .andExpect(jsonPath("$.item.name").value(dto1.getItem().getName()))
+                .andExpect(jsonPath("$.item.description").value(dto1.getItem().getDescription()))
+                .andExpect(jsonPath("$.item.available").value(dto1.getItem().getAvailable()))
+                .andExpect(jsonPath("$.item.requestId").value(dto1.getItem().getRequestId()))
 
                 .andExpect(jsonPath("$.booker.id").value(dto1.getBooker().getId()))
                 .andExpect(jsonPath("$.booker.name").value(dto1.getBooker().getName()));
@@ -113,6 +116,9 @@ class BookingControllerTest {
 
                 .andExpect(jsonPath("$.item.id").value(dto1.getItem().getId()))
                 .andExpect(jsonPath("$.item.name").value(dto1.getItem().getName()))
+                .andExpect(jsonPath("$.item.description").value(dto1.getItem().getDescription()))
+                .andExpect(jsonPath("$.item.available").value(dto1.getItem().getAvailable()))
+                .andExpect(jsonPath("$.item.requestId").value(dto1.getItem().getRequestId()))
 
                 .andExpect(jsonPath("$.booker.id").value(dto1.getBooker().getId()))
                 .andExpect(jsonPath("$.booker.name").value(dto1.getBooker().getName()));
@@ -137,6 +143,9 @@ class BookingControllerTest {
 
                 .andExpect(jsonPath("$.item.id").value(dto1.getItem().getId()))
                 .andExpect(jsonPath("$.item.name").value(dto1.getItem().getName()))
+                .andExpect(jsonPath("$.item.description").value(dto1.getItem().getDescription()))
+                .andExpect(jsonPath("$.item.available").value(dto1.getItem().getAvailable()))
+                .andExpect(jsonPath("$.item.requestId").value(dto1.getItem().getRequestId()))
 
                 .andExpect(jsonPath("$.booker.id").value(dto1.getBooker().getId()))
                 .andExpect(jsonPath("$.booker.name").value(dto1.getBooker().getName()));
@@ -165,6 +174,9 @@ class BookingControllerTest {
 
                 .andExpect(jsonPath("$[0].item.id").value(dto1.getItem().getId()))
                 .andExpect(jsonPath("$[0].item.name").value(dto1.getItem().getName()))
+                .andExpect(jsonPath("$[0].item.description").value(dto1.getItem().getDescription()))
+                .andExpect(jsonPath("$[0].item.available").value(dto1.getItem().getAvailable()))
+                .andExpect(jsonPath("$[0].item.requestId").value(dto1.getItem().getRequestId()))
 
                 .andExpect(jsonPath("$[0].booker.id").value(dto1.getBooker().getId()))
                 .andExpect(jsonPath("$[0].booker.name").value(dto1.getBooker().getName()))
@@ -178,6 +190,9 @@ class BookingControllerTest {
 
                 .andExpect(jsonPath("$[1].item.id").value(dto2.getItem().getId()))
                 .andExpect(jsonPath("$[1].item.name").value(dto2.getItem().getName()))
+                .andExpect(jsonPath("$[1].item.description").value(dto2.getItem().getDescription()))
+                .andExpect(jsonPath("$[1].item.available").value(dto2.getItem().getAvailable()))
+                .andExpect(jsonPath("$[1].item.requestId").value(dto2.getItem().getRequestId()))
 
                 .andExpect(jsonPath("$[1].booker.id").value(dto2.getBooker().getId()))
                 .andExpect(jsonPath("$[1].booker.name").value(dto2.getBooker().getName()));
@@ -206,6 +221,9 @@ class BookingControllerTest {
 
                 .andExpect(jsonPath("$[0].item.id").value(dto1.getItem().getId()))
                 .andExpect(jsonPath("$[0].item.name").value(dto1.getItem().getName()))
+                .andExpect(jsonPath("$[0].item.description").value(dto1.getItem().getDescription()))
+                .andExpect(jsonPath("$[0].item.available").value(dto1.getItem().getAvailable()))
+                .andExpect(jsonPath("$[0].item.requestId").value(dto1.getItem().getRequestId()))
 
                 .andExpect(jsonPath("$[0].booker.id").value(dto1.getBooker().getId()))
                 .andExpect(jsonPath("$[0].booker.name").value(dto1.getBooker().getName()))
@@ -219,6 +237,9 @@ class BookingControllerTest {
 
                 .andExpect(jsonPath("$[1].item.id").value(dto2.getItem().getId()))
                 .andExpect(jsonPath("$[1].item.name").value(dto2.getItem().getName()))
+                .andExpect(jsonPath("$[1].item.description").value(dto2.getItem().getDescription()))
+                .andExpect(jsonPath("$[1].item.available").value(dto2.getItem().getAvailable()))
+                .andExpect(jsonPath("$[1].item.requestId").value(dto2.getItem().getRequestId()))
 
                 .andExpect(jsonPath("$[1].booker.id").value(dto2.getBooker().getId()))
                 .andExpect(jsonPath("$[1].booker.name").value(dto2.getBooker().getName()));

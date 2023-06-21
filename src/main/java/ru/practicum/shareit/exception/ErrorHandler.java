@@ -10,38 +10,33 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice("ru.practicum.shareit")
 @Slf4j
 public class ErrorHandler {
+    private static final String EXCEPTION_CAUGHT = "Exception caught: ";
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundException(NotFoundException e) {
-        log.warn("Exception caught: " + e.getMessage());
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleRegistrationException(RegistrationException e) {
-        log.warn("Exception caught: " + e.getMessage());
+        log.warn(EXCEPTION_CAUGHT + e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(ValidationException e) {
-        log.warn("Exception caught: " + e.getMessage());
+        log.warn(EXCEPTION_CAUGHT + e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        log.warn("Exception caught: " + e.getMessage());
+        log.warn(EXCEPTION_CAUGHT + e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleOtherExceptions(RuntimeException e) {
-        log.warn("Exception caught: " + e.getMessage());
+        log.warn(EXCEPTION_CAUGHT + e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
 }

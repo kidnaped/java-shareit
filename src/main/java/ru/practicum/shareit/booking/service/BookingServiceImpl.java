@@ -94,7 +94,7 @@ public class BookingServiceImpl implements BookingService {
 
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId, pageable);
+                bookings = bookingRepository.findAllByBookerId(bookerId, pageable);
                 break;
             case CURRENT:
                 bookings = bookingRepository.findAllByBookerIdAndStateCurrent(bookerId, pageable);

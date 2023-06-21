@@ -50,7 +50,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         User user = userService.getUserById(userId);
         List<ItemRequestDto> requestDtos = requestRepository
-                .findAllByRequesterIdOrderByCreationDateDesc(user.getId())
+                .findAllByRequesterIdOrderByCreatedDesc(user.getId())
                 .stream()
                 .map(ItemRequestMapper::toDto)
                 .collect(Collectors.toList());
@@ -68,7 +68,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         User user = userService.getUserById(userId);
         Pageable pageable = getPage(from, size);
         List<ItemRequestDto> requestDtos = requestRepository
-                .findAllByRequesterIdOrderByCreationDateDesc(user.getId(), pageable)
+                .findAllByRequesterIdNotOrderByCreatedDesc(user.getId(), pageable)
                 .stream()
                 .map(ItemRequestMapper::toDto)
                 .collect(Collectors.toList());
