@@ -66,7 +66,6 @@ class ItemServiceIntegrationTest {
         assertThat(itemService.getById(userDto1.getId(), itemDto.getId())).isEqualTo(itemDto);
     }
 
-
     @Test
     void shouldReturnListOfDtosWhenSearchingByText() {
         List<ItemDto> result1 = itemService.searchAvailableItems(userDto1.getId(),"Item", 1, 20);

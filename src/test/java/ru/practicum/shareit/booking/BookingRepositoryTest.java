@@ -121,6 +121,7 @@ class BookingRepositoryTest {
 
         pageable = PageRequest.of(1 / 20, 20, Sort.by("start").descending());
     }
+
     @Test
     void shouldReturnBookingListAfterSavingAndFindItByBookerId1() {
         assertEquals(List.of(dbBooking), bookingRepository.findAllByBookerId(dbUser1.getId(), pageable));
@@ -139,7 +140,6 @@ class BookingRepositoryTest {
                 bookingRepository.findAllByBookerId(dbUser2.getId(), pageable));
         assertEquals(4, bookingRepository.findAllByBookerId(dbUser2.getId(), pageable).size());
     }
-
 
     @Test
     void shouldReturnListOf4BookingsWhenFindingByOwnerId1() {
@@ -202,7 +202,6 @@ class BookingRepositoryTest {
                 bookingRepository.findAllByBookerIdAndStatePast(dbUser1.getId(), pageable).size());
     }
 
-
     @Test
     void shouldReturnCorrectPastBookingWhenFindingByOwner1() {
         assertEquals(List.of(lastDbBooking),
@@ -218,7 +217,6 @@ class BookingRepositoryTest {
         assertEquals(0,
                 bookingRepository.findAllByOwnerIdAndStatePast(dbUser2.getId(), pageable).size());
     }
-
 
     @Test
     void shouldReturnListOfFutureBookingsWhenFindingByBooker2() {

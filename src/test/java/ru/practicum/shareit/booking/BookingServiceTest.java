@@ -178,7 +178,6 @@ class BookingServiceTest {
                 bookingService.getByOwnerId(1L, "ALL", 0, 0));
     }
 
-
     @Test
     void shouldReturnBookingsListWhenGetByOwner1AndStateAll() {
         when(userService.getUserById(user1.getId())).thenReturn(user1);

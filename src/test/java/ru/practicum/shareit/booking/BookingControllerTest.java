@@ -127,7 +127,7 @@ class BookingControllerTest {
 
     @Test
     @SneakyThrows
-    void ShouldReturnBookingByBookingId() {
+    void shouldReturnBookingByBookingId() {
         when(bookingService.getBookingById(1L, 1L)).thenReturn(dto1);
 
         mockMvc.perform(get("/bookings/{bookingId}", 1L)

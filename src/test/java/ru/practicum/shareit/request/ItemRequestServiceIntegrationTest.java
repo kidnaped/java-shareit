@@ -85,7 +85,6 @@ class ItemRequestServiceIntegrationTest {
         assertThat(itemRequestService.getById(userDto2.getId(), itemRequestDto.getId())).isEqualTo(itemRequestDto);
     }
 
-
     @Test
     void shouldReturnListOfRequestsWhenGettingByRequesterId() {
         List<ItemRequestDto> result1 = itemRequestService.getByRequester(userDto1.getId());

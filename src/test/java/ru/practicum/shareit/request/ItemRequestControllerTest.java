@@ -80,7 +80,6 @@ class ItemRequestControllerTest {
         verify(itemRequestServiceMock).getByRequester(1L);
     }
 
-
     @SneakyThrows
     @Test
     void shouldReturnListOfRequestsWhenGettingAllRequests() {
