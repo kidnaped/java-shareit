@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Comment;
@@ -51,6 +52,7 @@ class ItemServiceTest {
     private ItemServiceImpl itemService;
 
     private User user1;
+    private User user2;
     private Item item1;
     private ItemRequest itemRequest1;
     private ItemDto itemDto1;
@@ -62,7 +64,7 @@ class ItemServiceTest {
     @BeforeEach
     void beforeEach() {
         user1 = User.builder().id(1L).name("User1").email("user1@mail.com").build();
-        User user2 = User.builder().id(2L).name("User2").email("user2@mail.com").build();
+        user2 = User.builder().id(2L).name("User2").email("user2@mail.com").build();
         itemRequest1 = ItemRequest.builder()
                 .id(1L)
                 .description("Iron")
@@ -165,6 +167,14 @@ class ItemServiceTest {
     }
 
     @Test
+    void shouldReturnExceptionWhenUpdatingNotOwnedItem() {
+        when(userService.getUserById(Mockito.anyLong())).thenReturn(user2);
+        when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(item1));
+
+        assertThrows(NotFoundException.class, () -> itemService.updateItem(user2.getId(), item1.getId(), itemCreationDto1));
+    }
+
+    @Test
     void shouldReturnItemDtoWhenGettingItemById() {
         when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(item1));
 
@@ -190,5 +200,15 @@ class ItemServiceTest {
         assertThat(commentDto.getAuthorName()).isEqualTo(comment.getAuthor().getName());
         assertThat(commentDto.getCreated().truncatedTo(ChronoUnit.SECONDS))
                 .isEqualTo(comment.getCreated().truncatedTo(ChronoUnit.SECONDS));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenAddingCommentToNotBookedItem() {
+        when(userService.getUserById(Mockito.anyLong())).thenReturn(user1);
+        when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(item1));
+        when(bookingRepository.existsByBookerIdAndItemIdAndEndBefore(Mockito.anyLong(), Mockito.anyLong(),
+                Mockito.any(LocalDateTime.class))).thenReturn(false);
+
+        assertThrows(ValidationException.class, () -> itemService.addComment(1L, 2L, commentCreationDto));
     }
 }

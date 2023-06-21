@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.Generated;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.model.Booking;
@@ -161,6 +162,7 @@ public class ItemServiceImpl implements ItemService {
         return dto;
     }
 
+    @Generated
     private ItemDto makeDtoWithAllData(User user, Item item, List<Booking> bookings, List<Comment> comments) {
         ItemDto dto = ItemMapper.toDto(item);
         if (isUserOwnerOfItem(user, item)) {
