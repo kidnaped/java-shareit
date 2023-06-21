@@ -1,12 +1,14 @@
 package ru.practicum.shareit.user.model;
 
 import lombok.*;
+import ru.practicum.shareit.Generated;
 
 import javax.persistence.*;
 import java.util.Objects;
 
 @Getter
 @Setter
+@Generated
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

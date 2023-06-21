@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.*;
+import ru.practicum.shareit.Generated;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
@@ -10,6 +11,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @Builder
+@Generated
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
