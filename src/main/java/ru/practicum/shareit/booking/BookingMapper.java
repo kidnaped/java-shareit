@@ -12,6 +12,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class BookingMapper {
     public static BookingDto toDto(Booking booking) {
         return BookingDto.builder()
                 .id(booking.getId())
-                .start(booking.getStart())
+                .start(booking.getStart().truncatedTo(ChronoUnit.SECONDS))
                 .end(booking.getEnd())
                 .booker(UserMapper.toShortDto(booking.getBooker()))
                 .item(ItemMapper.toShortDto(booking.getItem()))
