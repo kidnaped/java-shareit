@@ -7,6 +7,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -36,16 +37,16 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> getAllItemsForOwner(@RequestHeader(value = "X-Sharer-User-Id") long userId,
-                                             @RequestParam(defaultValue = "0") int from,
-                                             @RequestParam(defaultValue = "10") int size) {
+                                             @Min(0) @RequestParam(defaultValue = "0") int from,
+                                             @Min(1) @RequestParam(defaultValue = "10") int size) {
         return service.getUsersItems(userId, from, size);
     }
 
     @GetMapping("/search")
     public List<ItemDto> searchForItems(@RequestHeader(value = "X-Sharer-User-Id") long userId,
                                         @RequestParam String text,
-                                        @RequestParam(defaultValue = "0") int from,
-                                        @RequestParam(defaultValue = "10") int size) {
+                                        @Min(0) @RequestParam(defaultValue = "0") int from,
+                                        @Min(1) @RequestParam(defaultValue = "10") int size) {
         return service.searchAvailableItems(userId, text.toLowerCase(), from, size);
     }
 
