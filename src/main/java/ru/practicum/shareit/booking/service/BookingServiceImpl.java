@@ -2,6 +2,9 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -83,29 +86,30 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getByBookerId(Long bookerId, String passedState) {
+    public List<BookingDto> getByBookerId(Long bookerId, String passedState, Integer from, Integer size) {
         User booker = userService.getUserById(bookerId);
         State state = getState(passedState);
+        Pageable pageable = getPage(from, size);
         List<Booking> bookings = new ArrayList<>();
 
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId);
+                bookings = bookingRepository.findAllByBookerId(bookerId, pageable);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findAllByBookerIdAndStateCurrent(bookerId);
+                bookings = bookingRepository.findAllByBookerIdAndStateCurrent(bookerId, pageable);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findAllByBookerIdAndStateFuture(bookerId);
+                bookings = bookingRepository.findAllByBookerIdAndStateFuture(bookerId, pageable);
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByBookerIdAndStatePast(bookerId);
+                bookings = bookingRepository.findAllByBookerIdAndStatePast(bookerId, pageable);
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, Status.WAITING);
+                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, Status.WAITING, pageable);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, Status.REJECTED);
+                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, Status.REJECTED, pageable);
                 break;
         }
 
@@ -114,29 +118,30 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getByOwnerId(Long ownerId, String passedState) {
+    public List<BookingDto> getByOwnerId(Long ownerId, String passedState, Integer from, Integer size) {
         User owner = userService.getUserById(ownerId);
+        Pageable pageable = getPage(from, size);
         State state = getState(passedState);
         List<Booking> bookings = new ArrayList<>();
 
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findAllByOwnerId(ownerId);
+                bookings = bookingRepository.findAllByOwnerId(ownerId, pageable);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findAllByOwnerIdAndStateCurrent(ownerId);
+                bookings = bookingRepository.findAllByOwnerIdAndStateCurrent(ownerId, pageable);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findAllByOwnerIdAndStateFuture(ownerId);
+                bookings = bookingRepository.findAllByOwnerIdAndStateFuture(ownerId, pageable);
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByOwnerIdAndStatePast(ownerId);
+                bookings = bookingRepository.findAllByOwnerIdAndStatePast(ownerId, pageable);
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllByOwnerIdAndStatus(ownerId, Status.WAITING);
+                bookings = bookingRepository.findAllByOwnerIdAndStatus(ownerId, Status.WAITING, pageable);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findAllByOwnerIdAndStatus(ownerId, Status.REJECTED);
+                bookings = bookingRepository.findAllByOwnerIdAndStatus(ownerId, Status.REJECTED, pageable);
                 break;
         }
 
@@ -171,5 +176,12 @@ public class BookingServiceImpl implements BookingService {
         } catch (IllegalArgumentException e) {
             throw new ValidationException("Unknown state: " + state);
         }
+    }
+
+    private PageRequest getPage(Integer from, Integer size) {
+        if (size <= 0 || from < 0) {
+            throw new IllegalArgumentException("Page size must not be less than one.");
+        }
+        return PageRequest.of(from / size, size, Sort.by("start").descending());
     }
 }
