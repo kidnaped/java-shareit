@@ -1,4 +1,4 @@
-package shareit.item;
+package ru.practicum.shareit.item;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,6 @@ import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Comment;
@@ -116,11 +115,6 @@ class ItemServiceTest {
     void shouldReturnEmptyWhenSearchingByWrongText() {
         assertThat(itemService.searchAvailableItems(1L,"", 1, 20).size()).isZero();
         verify(itemRepository, times(0)).search("", pageable);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenSizeParameterIsZero() {
-        assertThrows(IllegalArgumentException.class, () -> itemService.searchAvailableItems(1L,"iro", 0, 0));
     }
 
     @Test

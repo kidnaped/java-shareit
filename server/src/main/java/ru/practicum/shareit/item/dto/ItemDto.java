@@ -8,8 +8,6 @@ import ru.practicum.shareit.Generated;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.user.dto.UserShortDto;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,11 +18,8 @@ import java.util.List;
 @Generated
 public class ItemDto {
     private long id;
-    @NotBlank
     private String name;
-    @NotBlank
     private String description;
-    @NotNull
     private Boolean available;
     private Long requestId;
     private UserShortDto owner;

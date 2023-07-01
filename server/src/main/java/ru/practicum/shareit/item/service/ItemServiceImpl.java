@@ -205,9 +205,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private PageRequest getPage(Integer from, Integer size) {
-        if (size <= 0 || from < 0) {
-            throw new IllegalArgumentException("Page size must not be less than one.");
-        }
         return PageRequest.of(from / size, size, Sort.by("id").ascending());
     }
 }

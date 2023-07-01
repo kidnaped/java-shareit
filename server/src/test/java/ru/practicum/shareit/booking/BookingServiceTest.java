@@ -1,4 +1,4 @@
-package shareit.booking;
+package ru.practicum.shareit.booking;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,14 +10,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingCreationDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
-import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
 import ru.practicum.shareit.request.ItemRequest;
@@ -30,7 +27,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -98,18 +94,6 @@ class BookingServiceTest {
     }
 
     @Test
-    void shouldThrowValidationExceptionWhenPassingWrongState() {
-        assertThrows(ValidationException.class, () ->
-                bookingService.getByBookerId(1L, "CHIHUAHUA", 1, 20));
-    }
-
-    @Test
-    void shouldThrowIllegalArgumentExceptionWhenPassingWrongFromAndSize() {
-        assertThrows(IllegalArgumentException.class, () ->
-                bookingService.getByBookerId(1L, "ALL", 0, 0));
-    }
-
-    @Test
     void shouldReturnBookingsListWhenGetByBooker1AndStateAll() {
         when(userService.getUserById(user1.getId())).thenReturn(user1);
         when(bookingRepository.findAllByBookerId(user1.getId(), pageable)).thenReturn(List.of(booking1));
@@ -165,18 +149,6 @@ class BookingServiceTest {
 
         assertThat(bookingService.getByBookerId(user1.getId(), "REJECTED", 1, 20)).asList()
                 .contains(bookingDto);
-    }
-
-    @Test
-    void shouldThrowValidationExceptionWhenPassingWrongStateAndOwnerId() {
-        assertThrows(ValidationException.class, () ->
-                bookingService.getByOwnerId(1L, "CHICHICHI", 1, 20));
-    }
-
-    @Test
-    void shouldThrowIllegalArgumentExceptionWhenPassingWrongFromOrSizeAndOwnerId() {
-        assertThrows(IllegalArgumentException.class, () ->
-                bookingService.getByOwnerId(1L, "ALL", 0, 0));
     }
 
     @Test
