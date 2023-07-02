@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +10,12 @@ import ru.practicum.shareit.item.dto.CommentInputDto;
 import ru.practicum.shareit.item.dto.ItemInputDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
+
+import java.util.Collections;
+
+import static ru.practicum.shareit.Utils.USER_ID_HEADER;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,7 +24,6 @@ import javax.validation.Valid;
 @Slf4j
 public class ItemController {
     private final ItemClient client;
-    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     public ResponseEntity<Object> createItem(@RequestHeader(USER_ID_HEADER) Long userId,
@@ -43,8 +49,8 @@ public class ItemController {
 
     @GetMapping
     public ResponseEntity<Object> getByUserId(@RequestHeader(USER_ID_HEADER) Long userId,
-                                              @RequestParam(defaultValue = "0") Integer from,
-                                              @RequestParam(defaultValue = "10") Integer size) {
+                                              @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                              @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("Getting by user id = {}", userId);
         return client.getByUserId(userId, from, size);
     }
@@ -52,8 +58,11 @@ public class ItemController {
     @GetMapping("/search")
     public ResponseEntity<Object> search(@RequestHeader(USER_ID_HEADER) Long userId,
                                          @RequestParam String text,
-                                         @RequestParam(defaultValue = "0") Integer from,
-                                         @RequestParam(defaultValue = "10") Integer size) {
+                                         @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                         @Positive @RequestParam(defaultValue = "10") Integer size) {
+        if (text.isBlank() || text.isEmpty()) {
+            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
+        }
         log.info("Search by text = {}", text);
         return client.search(userId, text, from, size);
     }

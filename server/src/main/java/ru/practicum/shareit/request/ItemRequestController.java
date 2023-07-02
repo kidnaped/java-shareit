@@ -10,12 +10,13 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
 
+import static ru.practicum.shareit.Utils.USER_ID_HEADER;
+
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
 public class ItemRequestController {
     private final ItemRequestService requestService;
-    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     public ItemRequestDto registerRequest(@RequestHeader(USER_ID_HEADER) long userId,

@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestInputDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
+
+import static ru.practicum.shareit.Utils.USER_ID_HEADER;
 
 @RestController
 @RequestMapping("/requests")
@@ -16,7 +20,6 @@ import javax.validation.Valid;
 @Slf4j
 public class ItemRequestController {
     private final ItemRequestClient client;
-    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     public ResponseEntity<Object> create(@RequestHeader(USER_ID_HEADER) Long userId,
@@ -40,8 +43,8 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public ResponseEntity<Object> getAll(@RequestHeader(USER_ID_HEADER) Long userId,
-                                         @RequestParam(defaultValue = "0") Integer from,
-                                         @RequestParam(defaultValue = "10") Integer size) {
+                                         @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                         @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("Getting all requests for user {}", userId);
         return client.getAll(userId, from, size);
     }
